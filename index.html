@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui, shrink-to-fit=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>Vex 3 Modded - No Ads, Gamepad Support</title>
+    <link rel="icon" type="image/png" href="assets/icon.png">
+    <link rel="apple-touch-icon" type="image/png" href="assets/icon.png" />
+    <link rel="stylesheet" href="assets/css/app.css" type="text/css" />
+</head>
+<body style="overflow:hidden; background-color: black;">
+    <div id="content"></div>
+    <div id="loader">Loading...</div>
+    <div id="orientation"></div>
+
+    <!-- Script giả lập phím từ Gamepad (Không dính dáng đến file gốc bị minified) -->
+    <script src="gamepad.js"></script>
+
+    <!-- Load game (Đã xóa các file gọi Ads và Analytics) -->
+    <script type="text/javascript">
+        var gameName = "vex3.min.js";
+        function addScript(src, buster, callback) {
+            var s = document.createElement('script');
+            s.setAttribute('src', src + '?v=' + buster);
+            if (typeof callback === 'function') {
+                s.onload = callback;
+            }
+            document.body.appendChild(s);
+        }
+        addScript('version.js', Date.now(), function() {
+            addScript(gameName, Date.now(), function() {});
+        });
+    </script>
+</body>
+</html>
