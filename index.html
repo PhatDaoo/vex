@@ -87,7 +87,12 @@
         window.azerionJGSDK = magicProxy;
         window._azerionIntegration = {};
         window.h5branding = { Utils: falseFunctionProxy, Branding: falseFunctionProxy, SplashLoader: { getInstance: function() { return magicProxy; } } };
-        window.h5ads = { AdWrapper: function() { return magicProxy; }, AdEvents: stringProxy };
+        window.h5ads = { 
+            AdWrapper: function() { return magicProxy; }, 
+            AdEvents: stringProxy,
+            AdType: stringProxy,
+            AdProvider: stringProxy
+        };
     </script>
 
     <!-- Hỗ trợ chơi bằng tay cầm (PS/Xbox/MFi) -->
