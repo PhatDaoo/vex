@@ -19,43 +19,66 @@
     <div id="orientation"></div>
 
     <script>
+        // Ghi nhận lỗi trên màn hình (để dễ debug trên iPad)
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            alert("Error: " + msg + "\nLine: " + lineNo + "\nCol: " + columnNo);
+            return false;
+        };
+
         // --- HỆ THỐNG VƯỢT RÀO QUẢNG CÁO (BYPASS ADS) ---
         var resolvedPromise = Promise.resolve();
-        var magicProxy = new Proxy(function(){}, {
-            get: function(target, prop) {
-                if (prop === 'then') return resolvedPromise.then.bind(resolvedPromise);
-                if (prop === 'catch') return resolvedPromise.catch.bind(resolvedPromise);
-                if (prop === Symbol.toPrimitive) return function() { return 1; };
-                if (prop === 'toString' || prop === 'valueOf') return function() { return "1"; };
-                
-                return new Proxy(function(){}, {
-                    apply: function(t, thisArg, args) {
-                        args.forEach(function(arg) {
-                            if (typeof arg === 'function') {
-                                var p = String(prop);
-                                if (p !== 'removeListener' && p !== 'removeEventListener' && p !== 'off') {
-                                    setTimeout(arg, 100);
+        var magicProxy;
+        
+        try {
+            magicProxy = new Proxy(function(){}, {
+                get: function(target, prop) {
+                    if (prop === 'then') return resolvedPromise.then.bind(resolvedPromise);
+                    if (prop === 'catch') return resolvedPromise.catch.bind(resolvedPromise);
+                    if (typeof Symbol !== 'undefined' && prop === Symbol.toPrimitive) return function() { return 1; };
+                    if (prop === 'toString' || prop === 'valueOf') return function() { return "1"; };
+                    
+                    return new Proxy(function(){}, {
+                        apply: function(t, thisArg, args) {
+                            args.forEach(function(arg) {
+                                if (typeof arg === 'function') {
+                                    var p = String(prop);
+                                    if (p !== 'removeListener' && p !== 'removeEventListener' && p !== 'off') {
+                                        setTimeout(arg, 100);
+                                    }
                                 }
-                            }
-                        });
-                        return magicProxy;
-                    },
-                    get: function(t, p) { return magicProxy[p]; }
-                });
-            },
-            apply: function() { return magicProxy; },
-            construct: function() { return {}; }
-        });
+                            });
+                            return magicProxy;
+                        },
+                        get: function(t, p) { return magicProxy[p]; }
+                    });
+                },
+                apply: function() { return magicProxy; },
+                construct: function() { return {}; }
+            });
+        } catch (e) {
+            // Fallback an toàn nếu trình duyệt không hỗ trợ Proxy (rất cũ)
+            magicProxy = {};
+        }
 
-        var falseFunctionProxy = new Proxy(function(){}, {
-            get: function(target, prop) { return falseFunctionProxy; },
-            apply: function() { return false; },
-            construct: function() { return {}; }
-        });
+        var falseFunctionProxy;
+        try {
+            falseFunctionProxy = new Proxy(function(){}, {
+                get: function(target, prop) { return falseFunctionProxy; },
+                apply: function() { return false; },
+                construct: function() { return {}; }
+            });
+        } catch (e) {
+            falseFunctionProxy = function() { return false; };
+        }
 
-        var stringProxy = new Proxy({}, {
-            get: function(target, prop) { return "fake_event"; }
-        });
+        var stringProxy;
+        try {
+            stringProxy = new Proxy({}, {
+                get: function(target, prop) { return "fake_event"; }
+            });
+        } catch (e) {
+            stringProxy = {};
+        }
 
         // Áp dụng bộ từ điển giả lập
         window.azAdWrapper = magicProxy;
