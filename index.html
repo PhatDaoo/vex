@@ -100,14 +100,15 @@
     
     <!-- Nạp file game gốc -->
     <script>
-        var gameName = "vex3.min.js";
+        var cacheBuster = "?v=" + new Date().getTime();
+        var gameName = "vex3.min.js" + cacheBuster;
         function addScript(src, callback) {
             var s = document.createElement('script');
             s.setAttribute('src', src);
             if (typeof callback === 'function') s.onload = callback;
             document.body.appendChild(s);
         }
-        addScript('version.js', function() { addScript(gameName, function() {}); });
+        addScript('version.js' + cacheBuster, function() { addScript(gameName, function() {}); });
     </script>
 </body>
 </html>
