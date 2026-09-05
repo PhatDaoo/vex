@@ -24,15 +24,13 @@
             cancelable: true
         });
         
-        // Fix tương thích cho một số engine cũ (OpenFL/Haxe thường kiểm tra keyCode)
+        // Fix tương thích cho một số engine cũ
         Object.defineProperty(event, 'keyCode', {get: () => keyDef.keyCode});
         Object.defineProperty(event, 'which', {get: () => keyDef.keyCode});
         
-        // Gửi sự kiện vào Window và Document
         window.dispatchEvent(event);
         document.dispatchEvent(event);
         
-        // Gửi sự kiện vào Canvas nếu Canvas đã được tạo
         const canvas = document.querySelector('canvas');
         if (canvas) canvas.dispatchEvent(event);
     }
@@ -45,28 +43,24 @@
         }
 
         if (gpFound) {
-            // Reset state
             state.UP = false; state.DOWN = false; state.LEFT = false; state.RIGHT = false;
 
-            // Đọc trạng thái các nút bấm (D-pad và nút A/X)
-            // 0: Nút X (PS4) / A (Xbox) -> Nhảy
-            // 12: D-pad Lên, 13: D-pad Xuống, 14: D-pad Trái, 15: D-pad Phải
+            // Đọc trạng thái các nút bấm
             if (gpFound.buttons[0]?.pressed || gpFound.buttons[12]?.pressed) state.UP = true;
             if (gpFound.buttons[13]?.pressed) state.DOWN = true;
             if (gpFound.buttons[14]?.pressed) state.LEFT = true;
             if (gpFound.buttons[15]?.pressed) state.RIGHT = true;
 
-            // Đọc trạng thái cần gạt (Analog Trái)
+            // Đọc trạng thái cần gạt (Analog)
             const xAxis = gpFound.axes[0];
             const yAxis = gpFound.axes[1];
             
-            // Dùng ngưỡng 0.4 (Deadzone) để tránh trôi cần gạt
             if (xAxis < -0.4) state.LEFT = true;
             if (xAxis > 0.4) state.RIGHT = true;
             if (yAxis < -0.4) state.UP = true;
             if (yAxis > 0.4) state.DOWN = true;
 
-            // So sánh với frame trước đó, nếu thay đổi thì gửi tín hiệu phím ảo
+            // So sánh và gửi tín hiệu
             for (let key in state) {
                 if (state[key] !== prevState[key]) {
                     triggerKey(KEY_MAP[key], state[key]);
@@ -75,7 +69,6 @@
             }
         }
         
-        // Lặp lại ở frame tiếp theo
         requestAnimationFrame(updateGamepads);
     }
 
@@ -83,6 +76,5 @@
         console.log("[Mod] Gamepad connected: " + e.gamepad.id);
     });
 
-    // Khởi động vòng lặp kiểm tra tay cầm
     requestAnimationFrame(updateGamepads);
 })();
